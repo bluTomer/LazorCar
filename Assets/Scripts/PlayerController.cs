@@ -42,6 +42,24 @@ public class PlayerController : MonoBehaviour
             TurnLeft();
         }
 
+        if (Input.touchCount > 0)
+        {
+            var touch = Input.GetTouch(0);
+
+            if (touch.phase == TouchPhase.Began)
+            {
+                var div = Screen.width * 0.5f;
+                if (touch.position.x > div)
+                {
+                    TurnRight();
+                }
+                else
+                {
+                    TurnLeft();
+                }
+            }
+        }
+
         if (_targetLane != CurrentLane)
         {
             MoveToLane();

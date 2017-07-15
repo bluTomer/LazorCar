@@ -80,4 +80,12 @@ public class ObsticleSpawner : MonoBehaviour
             height += interval;
         }
     }
+
+    public void SpawnBonus(Vector3 localPos, Transform parent)
+    {
+        var go = Instantiate(Bonuses[Random.Range(0, Bonuses.Length)]);
+        
+        go.transform.SetParent(parent);
+        go.transform.localPosition = localPos;
+    }
 }

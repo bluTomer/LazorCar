@@ -10,6 +10,13 @@ public class UIManager : MonoBehaviour
     public int MinSpeed;
     public int MaxSpeed;
 
+    private Animator _animator;
+
+    private void Awake()
+    {
+        _animator = GetComponent<Animator>();
+    }
+
     public void UpdateDistance(float normalizedValue)
     {
         normalizedValue = Mathf.Clamp01(normalizedValue);
@@ -26,5 +33,10 @@ public class UIManager : MonoBehaviour
     {
         normalizedValue = Mathf.Clamp01(normalizedValue);
         FuelMeter.value = normalizedValue;
+    }
+
+    public void Trigger(string state)
+    {
+        _animator.SetTrigger(state);
     }
 }

@@ -6,6 +6,19 @@ public class RoadSegment : MonoBehaviour
 {
 	public Transform BonusParent;
 	public Transform ObstacleParent;
+
+	public void ClearContents()
+	{
+		for (int i = 0; i < ObstacleParent.childCount; i++)
+		{
+			Destroy(ObstacleParent.GetChild(i).gameObject);
+		}
+		
+		for (int i = 0; i < BonusParent.childCount; i++)
+		{
+			Destroy(BonusParent.GetChild(i).gameObject);
+		}
+	}
 	
 	private void Update()
 	{
@@ -22,10 +35,7 @@ public class RoadSegment : MonoBehaviour
 
 	private void SetupSegment()
 	{
-		for (int i = 0; i < ObstacleParent.childCount; i++)
-		{
-			Destroy(ObstacleParent.GetChild(i).gameObject);
-		}
+		ClearContents();
 		GameManager.RT.SetupSegment(this);
 	}
 

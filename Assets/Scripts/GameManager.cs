@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class GameManager : MonoBehaviour
 {
@@ -19,13 +20,18 @@ public class GameManager : MonoBehaviour
     [SerializeField] private UIManager _uiManager;
     [SerializeField] private RoadSegment _segment0;
     [SerializeField] private RoadSegment _segment1;
+    [SerializeField] private Transform[] _bonusLanes;
 
     [Header("Gameplay Digits")]
     [SerializeField] private float _levelDistance;
     [SerializeField] private float _maxFuel;
     [SerializeField] private float _fuelConsumptionRate;
     [SerializeField] private float _baseMovementSpeed = 8.0f;
+    [SerializeField] private float _speedIncreaseFactor = 0.1f;
     [SerializeField] private AnimationCurve _speedIncreaseCurve;
+    [SerializeField] private float _bonusSpawnChance = 0.25f;
+    [SerializeField] private float _bonusDistanceMultiplier = 4.0f;
+    [SerializeField] private float _bonusFuelRatio = 0.25f;
 
     [Header("Spawning")]
     [SerializeField] private int _objectsPerSegment = 2;
@@ -54,13 +60,14 @@ public class GameManager : MonoBehaviour
         
         Messenger.Register<PlayerHealth.CollisionEvent>(HandlePlayerCollision);
         Messenger.Register<PlayerHealth.DeathEvent>(HandlePlayerDeath);
-        
-        StartGame();
+        Messenger.Register<Missile.HitEvent>(HandleMissileHit);
     }
 
     public void StartGame()
     {
         GameRunning = true;
+        _segment0.ClearContents();
+        _segment1.ClearContents();
         _currentDistance = 0;
         _currentSpeed = 0;
         _movementSpeed = 0;
@@ -94,7 +101,7 @@ public class GameManager : MonoBehaviour
             return;
         }
         
-        _currentSpeed += Time.deltaTime * 0.1f;
+        _currentSpeed += Time.deltaTime * _speedIncreaseFactor;
         _movementSpeed = _speedIncreaseCurve.Evaluate(_currentSpeed);
         _uiManager.UpdateSpeed(_currentSpeed / 1.0f);
     }
@@ -139,13 +146,45 @@ public class GameManager : MonoBehaviour
     private void WinState()
     {
         Debug.LogError("<color=green>GAME WON!</color>");
+        _uiManager.Trigger("Win");
         GameRunning = false;
     }
 
     private void LoseState()
     {
         Debug.LogError("<color=red>GAME LOST!</color>");
+        _uiManager.Trigger("Lose");
         GameRunning = false;
+    }
+    
+    #endregion
+    
+    #region Bonuses
+
+    private void HandleMissileHit(Missile.HitEvent arg0)
+    {
+        if (arg0.Other.CompareTag("Bonus_Distance"))
+        {
+            GiveDistanceBonus();
+            
+        }
+        
+        if (arg0.Other.CompareTag("Bonus_Fuel"))
+        {
+            GiveFuelBonus();
+        }
+        
+        Destroy(arg0.Other.gameObject);
+    }
+
+    private void GiveDistanceBonus()
+    {
+        _currentDistance += MovementSpeed * _bonusDistanceMultiplier;
+    }
+
+    private void GiveFuelBonus()
+    {
+        _currentFuel += _maxFuel * _bonusFuelRatio;
     }
     
     #endregion
@@ -191,12 +230,37 @@ public class GameManager : MonoBehaviour
     public void SetupSegment(RoadSegment segment)
     {
         SetupObsticles(segment);
+        SetupBonuses(segment);
     }
 
     private void SetupObsticles(RoadSegment segment)
     {
         _spawner.SetupObsticles(segment, _objectsPerSegment);
     }
+
+    private void SetupBonuses(RoadSegment segment)
+    {
+        if (Random.Range(0.0f, 1.0f) > _bonusSpawnChance)
+        {
+            // Failed
+            return;
+        }
+
+        var y = Random.Range(0.0f, ScreenExtentsY * 2.0f);
+        var x = _bonusLanes[Random.Range(0, _bonusLanes.Length)].position.x;
+        
+        _spawner.SpawnBonus(new Vector3(x, y, 0.0f), segment.BonusParent);
+    }
     
     #endregion
+    
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        if (!GameRunning)
+        {
+            return;
+        }
+        
+        Debug.Log("Pos: " + eventData.position);
+    }
 }
