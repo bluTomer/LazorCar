@@ -9,15 +9,14 @@ public class PlayerController : MonoBehaviour
 
     public Missile MissilePrefab;
     public float TurnLerpIncrease = 1.0f;
+    public Animator CarAnimator;
 
     private int _targetLane;
     private bool _isTurning;
-    private Animator _animation;
 
     private void Awake()
     {
         _targetLane = 0;
-        _animation = GetComponent<Animator>();
         MasterPooler.InitPool<Missile>(MissilePrefab);
     }
 
@@ -121,7 +120,7 @@ public class PlayerController : MonoBehaviour
     {
         _targetLane = newLane;
         _isTurning = true;
-        _animation.SetTrigger("Jump");
+        CarAnimator.SetTrigger("Jump");
     }
 
     private void MoveToLane()
