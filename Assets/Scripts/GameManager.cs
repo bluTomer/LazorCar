@@ -12,7 +12,7 @@ public class GameManager : MonoBehaviour
     #endregion
     public bool GameRunning { get; private set; }
     public float ScreenExtentsY { get { return _mainCamera.orthographicSize; }}
-    public float MovementSpeed { get { return GameRunning ? _movementSpeed * _baseMovementSpeed * Time.deltaTime : 0.0f; }}
+    public float MovementSpeed { get { return _keepScrolling ? _movementSpeed * _baseMovementSpeed * Time.deltaTime : 0.0f; }}
     public int NumberOfLanes { get { return _lanes.Length; } }
 
     [Header("Scene Refs")]
@@ -36,7 +36,7 @@ public class GameManager : MonoBehaviour
     [Header("Spawning")]
     [SerializeField] private int _objectsPerSegment = 2;
 
-    
+    private bool _keepScrolling;
     private Camera _mainCamera;
     private ObsticleSpawner _spawner;
     private Transform[] _lanes;
@@ -66,6 +66,7 @@ public class GameManager : MonoBehaviour
     public void StartGame()
     {
         GameRunning = true;
+        _keepScrolling = true;
         _segment0.ClearContents();
         _segment1.ClearContents();
         _currentDistance = 0;
@@ -154,6 +155,7 @@ public class GameManager : MonoBehaviour
     {
         Debug.LogError("<color=red>GAME LOST!</color>");
         _uiManager.Trigger("Lose");
+        _keepScrolling = false;
         GameRunning = false;
     }
     
