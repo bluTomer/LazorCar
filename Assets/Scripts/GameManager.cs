@@ -25,7 +25,6 @@ public class GameManager : MonoBehaviour
     [Header("Gameplay Digits")]
     [SerializeField] private float _levelDistance;
     [SerializeField] private float _maxFuel;
-    [SerializeField] private float _fuelConsumptionRate;
     [SerializeField] private float _baseMovementSpeed = 8.0f;
     [SerializeField] private float _speedIncreaseFactor = 0.1f;
     [SerializeField] private AnimationCurve _speedIncreaseCurve;
@@ -131,7 +130,7 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        _currentFuel -= Time.deltaTime * _fuelConsumptionRate;
+        _currentFuel -= Time.deltaTime;
         _uiManager.UpdateFuel(_currentFuel / _maxFuel);
 
         if (_currentFuel < 0)
