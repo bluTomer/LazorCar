@@ -23,17 +23,17 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Transform[] _bonusLanes;
 
     [Header("Gameplay Digits")]
-    [SerializeField] private float _levelDistance;
-    [SerializeField] private float _maxFuel;
-    [SerializeField] private float _baseMovementSpeed = 8.0f;
-    [SerializeField] private float _speedIncreaseFactor = 0.1f;
+    [SerializeField] private float _levelDistance = 1000f;
+    [SerializeField] private float _maxFuel = 55f;
     [SerializeField] private AnimationCurve _speedIncreaseCurve;
-    [SerializeField] private float _bonusSpawnChance = 0.25f;
-    [SerializeField] private float _bonusDistanceMultiplier = 4.0f;
-    [SerializeField] private float _bonusFuelRatio = 0.25f;
+    [SerializeField] private float _baseMovementSpeed = 18f;
+    [SerializeField] private float _speedIncreaseFactor = 0.07f;
+    [SerializeField] private float _bonusSpawnChance = 0.5f;
+    [SerializeField] private float _bonusDistanceMultiplier = 150f;
+    [SerializeField] private float _bonusFuelRatio = 0.1f;
 
     [Header("Spawning")]
-    [SerializeField] private int _objectsPerSegment = 2;
+    [SerializeField] private int _objectsPerSegment = 3;
 
     private bool _keepScrolling;
     private Camera _mainCamera;
@@ -195,7 +195,7 @@ public class GameManager : MonoBehaviour
     private void HandlePlayerCollision(PlayerHealth.CollisionEvent arg0)
     {
         Debug.LogError("PlayerHit!");
-        _currentSpeed = 0.0f;
+        _currentSpeed = Mathf.Clamp01(_currentSpeed - 0.4f);
     }
 
     private void HandlePlayerDeath(PlayerHealth.DeathEvent arg0)
