@@ -5,6 +5,7 @@ public class UIManager : MonoBehaviour
 {
     public Slider DistanceBar;
     public Text Speedometer;
+    public Slider FuelMeter;
 
     public int MinSpeed;
     public int MaxSpeed;
@@ -19,5 +20,11 @@ public class UIManager : MonoBehaviour
     {
         int speed = Mathf.FloorToInt(Mathf.Lerp(MinSpeed, MaxSpeed, normalizedValue));
         Speedometer.text = speed.ToString();
+    }
+
+    public void UpdateFuel(float normalizedValue)
+    {
+        normalizedValue = Mathf.Clamp01(normalizedValue);
+        FuelMeter.value = normalizedValue;
     }
 }

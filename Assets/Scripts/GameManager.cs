@@ -22,6 +22,8 @@ public class GameManager : MonoBehaviour
 
     [Header("Gameplay Digits")]
     [SerializeField] private float _levelDistance;
+    [SerializeField] private float _maxFuel;
+    [SerializeField] private float _fuelConsumptionRate;
     [SerializeField] private float _baseMovementSpeed = 8.0f;
     [SerializeField] private AnimationCurve _speedIncreaseCurve;
 
@@ -35,6 +37,7 @@ public class GameManager : MonoBehaviour
     private float _currentDistance;
     private float _movementSpeed;
     private float _currentSpeed;
+    private float _currentFuel;
     
     private void Awake()
     {
@@ -61,12 +64,14 @@ public class GameManager : MonoBehaviour
         _currentDistance = 0;
         _currentSpeed = 0;
         _movementSpeed = 0;
+        _currentFuel = _maxFuel;
     }
 
     private void Update()
     {
         UpdateSpeed();
         UpdateDistance();
+        UpdateFuel();
     }
 
     private void OnDestroy()
@@ -110,6 +115,22 @@ public class GameManager : MonoBehaviour
             WinState();
         }
     }
+
+    private void UpdateFuel()
+    {
+        if (!GameRunning)
+        {
+            return;
+        }
+
+        _currentFuel -= Time.deltaTime * _fuelConsumptionRate;
+        _uiManager.UpdateFuel(_currentFuel / _maxFuel);
+
+        if (_currentFuel < 0)
+        {
+            LoseState();
+        }
+    }
     
     #endregion
     
@@ -118,6 +139,12 @@ public class GameManager : MonoBehaviour
     private void WinState()
     {
         Debug.LogError("<color=green>GAME WON!</color>");
+        GameRunning = false;
+    }
+
+    private void LoseState()
+    {
+        Debug.LogError("<color=red>GAME LOST!</color>");
         GameRunning = false;
     }
     
