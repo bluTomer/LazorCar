@@ -19,24 +19,25 @@ public class GameManager : MonoBehaviour
     [SerializeField] private UIManager _uiManager;
     [SerializeField] private RoadSegment _segment0;
     [SerializeField] private RoadSegment _segment1;
-    
+
     [Header("Gameplay Digits")]
+    [SerializeField] private float _levelDistance;
     [SerializeField] private float _baseMovementSpeed = 8.0f;
     [SerializeField] private AnimationCurve _speedIncreaseCurve;
 
     [Header("Spawning")]
     [SerializeField] private int _objectsPerSegment = 2;
 
-    private float _movementSpeed;
     
     private Camera _mainCamera;
     private ObsticleSpawner _spawner;
     private Transform[] _lanes;
+    private float _currentDistance;
+    private float _movementSpeed;
     private float _currentSpeed;
     
     private void Awake()
     {
-        GameRunning = true;
         RT = this;
         _mainCamera = GetComponent<Camera>();
         _spawner = GetComponent<ObsticleSpawner>();
@@ -50,11 +51,22 @@ public class GameManager : MonoBehaviour
         
         Messenger.Register<PlayerHealth.CollisionEvent>(HandlePlayerCollision);
         Messenger.Register<PlayerHealth.DeathEvent>(HandlePlayerDeath);
+        
+        StartGame();
+    }
+
+    public void StartGame()
+    {
+        GameRunning = true;
+        _currentDistance = 0;
+        _currentSpeed = 0;
+        _movementSpeed = 0;
     }
 
     private void Update()
     {
         UpdateSpeed();
+        UpdateDistance();
     }
 
     private void OnDestroy()
@@ -63,7 +75,7 @@ public class GameManager : MonoBehaviour
         Messenger.Unregister<PlayerHealth.DeathEvent>(HandlePlayerDeath);
     }
     
-    #region Speed Management
+    #region Way Management
     
     private void UpdateSpeed()
     {
@@ -79,6 +91,34 @@ public class GameManager : MonoBehaviour
         
         _currentSpeed += Time.deltaTime * 0.1f;
         _movementSpeed = _speedIncreaseCurve.Evaluate(_currentSpeed);
+        _uiManager.UpdateSpeed(_currentSpeed / 1.0f);
+    }
+
+    private void UpdateDistance()
+    {
+        if (!GameRunning)
+        {
+            return;
+        }
+        
+        _currentDistance += MovementSpeed;
+        _uiManager.UpdateDistance(_currentDistance / _levelDistance);
+
+        if (_currentDistance > _levelDistance)
+        {
+            // Game won
+            WinState();
+        }
+    }
+    
+    #endregion
+    
+    #region Game States
+
+    private void WinState()
+    {
+        Debug.LogError("<color=green>GAME WON!</color>");
+        GameRunning = false;
     }
     
     #endregion
@@ -89,7 +129,6 @@ public class GameManager : MonoBehaviour
     {
         Debug.LogError("PlayerHit!");
         _currentSpeed = 0.0f;
-        _uiManager.UpdatePlayerHealth(arg0.CurrentHealth/arg0.MaxHealth);
     }
 
     private void HandlePlayerDeath(PlayerHealth.DeathEvent arg0)

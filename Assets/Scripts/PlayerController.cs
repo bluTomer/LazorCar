@@ -28,6 +28,11 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
+        if (!GameManager.RT.GameRunning)
+        {
+            return;
+        }
+        
         if (Input.GetKeyDown(KeyCode.D))
         {
             TurnRight();

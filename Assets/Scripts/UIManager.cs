@@ -1,15 +1,23 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
-    public Slider HealthBar;
+    public Slider DistanceBar;
+    public Text Speedometer;
 
-    public void UpdatePlayerHealth(float normalizedValue)
+    public int MinSpeed;
+    public int MaxSpeed;
+
+    public void UpdateDistance(float normalizedValue)
     {
         normalizedValue = Mathf.Clamp01(normalizedValue);
-        HealthBar.value = normalizedValue;
+        DistanceBar.value = normalizedValue;
+    }
+
+    public void UpdateSpeed(float normalizedValue)
+    {
+        int speed = Mathf.FloorToInt(Mathf.Lerp(MinSpeed, MaxSpeed, normalizedValue));
+        Speedometer.text = speed.ToString();
     }
 }
