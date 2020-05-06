@@ -5,6 +5,7 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     public int CurrentLane { get; private set; }
+
     public bool InAir { get; private set; }
 
     public Missile MissilePrefab;
@@ -64,7 +65,7 @@ public class PlayerController : MonoBehaviour
             MoveToLane();
         }
     }
-    
+
     private void PositionPlayerImmidiate(int layerIndex)
     {
         var newPos = transform.position;
@@ -133,7 +134,7 @@ public class PlayerController : MonoBehaviour
         // Increase and apply
         progress += Time.deltaTime * TurnLerpIncrease;
 
-        if (progress > 0.95f)
+        if (progress > 0.9f)
         {
             progress = 1.0f;
             _isTurning = false;

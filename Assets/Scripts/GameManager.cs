@@ -6,13 +6,17 @@ using UnityEngine.EventSystems;
 public class GameManager : MonoBehaviour
 {
     #region Singleton
-    
+
     public static GameManager RT { get; private set; }
-    
+
     #endregion
+
     public bool GameRunning { get; private set; }
-    public float ScreenExtentsY { get { return _mainCamera.orthographicSize; }}
-    public float MovementSpeed { get { return _keepScrolling ? _movementSpeed * _baseMovementSpeed * Time.deltaTime : 0.0f; }}
+
+    public float ScreenExtentsY { get { return _mainCamera.orthographicSize; } }
+
+    public float MovementSpeed { get { return _keepScrolling ? _movementSpeed * _baseMovementSpeed * Time.deltaTime : 0.0f; } }
+
     public int NumberOfLanes { get { return _lanes.Length; } }
 
     [Header("Scene Refs")]
@@ -43,7 +47,7 @@ public class GameManager : MonoBehaviour
     private float _movementSpeed;
     private float _currentSpeed;
     private float _currentFuel;
-    
+
     private void Awake()
     {
         RT = this;
@@ -58,7 +62,6 @@ public class GameManager : MonoBehaviour
         }
         
         Messenger.Register<PlayerHealth.CollisionEvent>(HandlePlayerCollision);
-        Messenger.Register<PlayerHealth.DeathEvent>(HandlePlayerDeath);
         Messenger.Register<Missile.HitEvent>(HandleMissileHit);
     }
 
@@ -72,6 +75,7 @@ public class GameManager : MonoBehaviour
         _currentSpeed = 0;
         _movementSpeed = 0;
         _currentFuel = _maxFuel;
+        SoundManager.RT.PlaySound(1);
     }
 
     private void Update()
@@ -84,11 +88,10 @@ public class GameManager : MonoBehaviour
     private void OnDestroy()
     {
         Messenger.Unregister<PlayerHealth.CollisionEvent>(HandlePlayerCollision);
-        Messenger.Unregister<PlayerHealth.DeathEvent>(HandlePlayerDeath);
     }
-    
+
     #region Way Management
-    
+
     private void UpdateSpeed()
     {
         if (!GameRunning)
@@ -138,14 +141,15 @@ public class GameManager : MonoBehaviour
             LoseState();
         }
     }
-    
+
     #endregion
-    
+
     #region Game States
 
     private void WinState()
     {
         Debug.LogError("<color=green>GAME WON!</color>");
+        _keepScrolling = false;
         _uiManager.Trigger("Win");
         GameRunning = false;
     }
@@ -156,10 +160,11 @@ public class GameManager : MonoBehaviour
         _uiManager.Trigger("Lose");
         _keepScrolling = false;
         GameRunning = false;
+        SoundManager.RT.PlaySound(5);
     }
-    
+
     #endregion
-    
+
     #region Bonuses
 
     private void HandleMissileHit(Missile.HitEvent arg0)
@@ -181,30 +186,27 @@ public class GameManager : MonoBehaviour
     private void GiveDistanceBonus()
     {
         _currentDistance += MovementSpeed * _bonusDistanceMultiplier;
+        SoundManager.RT.PlaySound(2);
     }
 
     private void GiveFuelBonus()
     {
         _currentFuel += _maxFuel * _bonusFuelRatio;
+        SoundManager.RT.PlaySound(3);
     }
-    
+
     #endregion
 
     #region Player Events
-    
+
     private void HandlePlayerCollision(PlayerHealth.CollisionEvent arg0)
     {
         Debug.LogError("PlayerHit!");
-        _currentSpeed = Mathf.Clamp01(_currentSpeed - 0.4f);
+        _currentSpeed = Mathf.Clamp01(_currentSpeed - 0.6f);
     }
 
-    private void HandlePlayerDeath(PlayerHealth.DeathEvent arg0)
-    {
-        Debug.LogError("PlayerDeath!");
-    }
-    
     #endregion
-    
+
     #region Utils
 
     public float GetLaneX(int index)
@@ -223,9 +225,9 @@ public class GameManager : MonoBehaviour
     {
         return segment == _segment0 ? _segment1 : _segment0;
     }
-    
+
     #endregion
-    
+
     #region Road Setup
 
     public void SetupSegment(RoadSegment segment)
@@ -252,9 +254,9 @@ public class GameManager : MonoBehaviour
         
         _spawner.SpawnBonus(new Vector3(x, y, 0.0f), segment.BonusParent);
     }
-    
+
     #endregion
-    
+
     public void OnPointerDown(PointerEventData eventData)
     {
         if (!GameRunning)

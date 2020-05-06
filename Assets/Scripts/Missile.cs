@@ -19,9 +19,9 @@ public class Missile : MonoBehaviour, IPoolable
         }
 
         var movement = new Vector3(
-            Speed * Time.deltaTime * _directionMod,
-            DragFactor * Time.deltaTime * -1.0f
-            );
+                           Speed * Time.deltaTime * _directionMod,
+                           DragFactor * Time.deltaTime * -1.0f
+                       );
         
         transform.Translate(movement);
     }
@@ -50,10 +50,10 @@ public class Missile : MonoBehaviour, IPoolable
         }
 
         Messenger.Broadcast(new HitEvent
-        {
-            Other = other,
-            Position = transform.position
-        });
+            {
+                Other = other,
+                Position = transform.position
+            });
     }
 
     public void Init()
